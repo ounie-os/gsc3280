@@ -8,7 +8,7 @@ AFLAGS = -G 0  -Os -Wall -Wstrict-prototypes -fpic -fno-builtin -mabicalls -pipe
 CPU_FREQ_MHZ = 250
 export CC LD OBJCOPY OBJDUMP AFLAGS CPU_FREQ_MHZ
 
-ALL = lib_gsc3280 can_open app
+ALL = lib_gsc3280 can_open modules app
 
 #.PHONY: all
 all: $(ALL)
@@ -22,6 +22,9 @@ lib_gsc3280:
 app: lib_gsc3280
 	cd app/ && make
 
+modules: lib_gsc3280
+	cd modules/ && make
+
 clean_lib:
 	cd lib/ && make clean
 
@@ -31,6 +34,9 @@ clean_canopen:
 clean_app:
 	cd app/ && make clean
 
+clean_modules:
+	cd modules/ && make clean
+
 .PHONY: clean
-clean: clean_canopen clean_lib clean_app
+clean: clean_canopen clean_lib clean_modules clean_app
 

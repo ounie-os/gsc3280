@@ -26,7 +26,7 @@ CFLAGS = $(OPT_CFLAGS)
 PROG_CFLAGS =  -D_GNU_SOURCE -D_REENTRANT -nostdlib -fno-builtin
 TARGET = libcanopenbsp
 
-INCLUDES = -I../inc -I../../include -I../../app
+INCLUDES = -I../inc -I../../include -I../../app -I../../modules/timer -I../../modules/can
 
 MASTER_OBJS = can_adapter.o timer_adapter.o
 
