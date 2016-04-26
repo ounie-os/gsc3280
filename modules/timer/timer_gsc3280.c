@@ -18,10 +18,10 @@ static inline unsigned int timer_read_reg(unsigned int reg)
     return readl(TIMER_BASE_ADDR + reg);
 }
 
-static int timer_irq_init(void)
+static int timer_irq_init(void *arg)
 {
     int ret;
-    ret = request_irq(26, timer_irq_handler, (void *)0);
+    ret = request_irq(26, timer_irq_handler, (void *)arg);
     if (0 != ret)
     {
         printf("timer irq init fail...\n");
@@ -34,12 +34,18 @@ static int timer_irq_init(void)
 void timer_irq_handler(void *arg)
 {
     unsigned int tis;
+    rt_handler_t func = (rt_handler_t) arg;
     tis = timer_read_reg(TIMER_TIS);    /* 读取是哪个定时器产生的中断 */
+    if (tis & TIMER3_IRQ_BIT)    /* 定时器3的中断 */
+    {
+        func();    /* 执行预定的任务 */
+    }
+    
     timer_read_reg(TIMER_TEOI);    /* 清除所有中断标志 */
 }
 
 
-void generic_timer_init(TIMER_INDEX index)
+void generic_timer_init(TIMER_INDEX index, void *arg)
 {
     u32 freq;
     u32 OD1,OD0;
@@ -65,7 +71,7 @@ void generic_timer_init(TIMER_INDEX index)
         {
             sysctl_mod_enable(SYSCTL_MOD_TIMER3);
             writel(TIMER3_CLK_DIV, SYSCTL_CLKDIV_TIMER3);
-            timer_irq_init();
+            timer_irq_init(arg);
             break;   
         }
 

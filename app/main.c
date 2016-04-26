@@ -4,9 +4,9 @@
 #include <def.h>
 #include "canfestival.h"
 #include "OD_0_0.h"
+#include "task.h"
 
 int __init_0();
-
 
 
 int main_loop(void)
@@ -17,9 +17,13 @@ int main_loop(void)
 	
 	canOpen(NULL, &OD_0_0_Data);
 	
-    generic_timer_init(TIMER3);
+    generic_timer_init(TIMER3, (void *)systick_task);    /* 定时器中断中，调用systick_task函数 */
 
-    __init_0();
+#if 0
+    timer_setup_by_ms(1000, TIMER3);    /* 开启定时器，1000ms中断一次 */
+#endif /* if 0 end*/
+
+    __init_0();    /* 初始化canopen */
     
 
     while (1)

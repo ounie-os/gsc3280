@@ -16,6 +16,13 @@
 #define TIMER_TEOI      0xa4
 #define TIMER_TRIS      0xa8
 
+#define TIMER3_IRQ_BIT  (1<<3)
+#define TIMER2_IRQ_BIT  (1<<2)
+#define TIMER1_IRQ_BIT  (1<<1)
+#define TIMER0_IRQ_BIT  (1<<0)
+
+
+
 #define TCR_MASK        (1<<2)    /* 0允许中断，1屏蔽中断 */
 #define TCR_MODE        (1<<1)    /* 0单次定时模式，1循环定时模式 */
 #define TCR_EN          (1<<0)    /* 0关闭定时器，1使能定时器 */
@@ -34,7 +41,10 @@ typedef enum
 #define timer_debug(fmt, args...)
 #endif
 
-void generic_timer_init(TIMER_INDEX index);
+typedef void (*rt_handler_t)();
+
+
+void generic_timer_init(TIMER_INDEX index, void *arg);
 u_int32_t timer_get_count(TIMER_INDEX index);
 void timer_irq_handler(void *arg);
 void timer_start(TIMER_INDEX index);
