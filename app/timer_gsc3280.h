@@ -43,8 +43,9 @@ void timer_enable_irq(TIMER_INDEX index);
 void timer_disable_irq(TIMER_INDEX index);
 void timer_set_oneshot_mode(TIMER_INDEX index);
 void timer_set_cycle_mode(TIMER_INDEX index);
-void timer_set_reload_count(u_int32_t value);
-
+void timer_set_reload_count(u_int32_t value, TIMER_INDEX index);
+void timer_set_reload_by_ms(u_int32_t period_ms, TIMER_INDEX index);
+void timer_setup_by_ms(u_int32_t period_ms, TIMER_INDEX index);
 
 
 

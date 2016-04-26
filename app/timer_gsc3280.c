@@ -6,6 +6,7 @@
 
 #define ref_clk 12000000
 
+static u_int32_t timer_freq;
 
 static inline void timer_write_reg(unsigned int reg, unsigned int val)
 {
@@ -56,6 +57,7 @@ void generic_timer_init(TIMER_INDEX index)
 	apb=readl(SYSCTL_CLKDIV_APB);
 	dll=pll_rate / ((ahb + 1) * (apb + 1) * ((TIMER3_CLK_DIV + 1) << 1));    /* 定时器是偶数分频，分频系数需要乘以2 */
 	timer_debug("timer clock is %lu(0x%08x)\n", dll, dll);
+	timer_freq = dll;
 
     switch (index)
     {
@@ -243,9 +245,50 @@ u_int32_t timer_get_count(TIMER_INDEX index)
 }
 
 
-void timer_set_reload_count(u_int32_t value)
+void timer_set_reload_count(u_int32_t value, TIMER_INDEX index)
 {
-    timer_write_reg(TIMER3_TLC, value);
+    switch (index)
+    {
+        case TIMER3:
+        {
+            timer_write_reg(TIMER3_TLC, value);
+            break;
+        }
+
+        case TIMER0:
+        case TIMER1:
+        case TIMER2:
+        default:
+        {
+            break;
+        }
+    }
 }
 
+void timer_set_reload_by_ms(u_int32_t period_ms, TIMER_INDEX index)
+{
+    u_int32_t time_reg_count = 0;
+    u_int32_t second, milli_second;
+    if (period_ms <= 1000)    /* 小于1秒 */
+    {
+        time_reg_count = (timer_freq * period_ms) / 1000;
+    }
+    else
+    {
+        second = period_ms / 1000;
+        milli_second = period_ms % 1000;
+        printf("second = %lu, milli_second = %lu\n", second, milli_second);
+        time_reg_count = second * timer_freq + (timer_freq * milli_second) / 1000;
+    }
+    timer_debug("time_reg_count = %lu\n", time_reg_count);
+    timer_set_reload_count(time_reg_count, index);
+}
+
+void timer_setup_by_ms(u_int32_t period_ms, TIMER_INDEX index)
+{
+    timer_set_cycle_mode(index);
+    timer_enable_irq(index);
+    timer_set_reload_by_ms(period_ms, index);
+    timer_start(index);
+}
 
