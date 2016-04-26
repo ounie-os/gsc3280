@@ -1,0 +1,15 @@
+CROSS_COMPILE=mipsel-linux-
+CC = $(CROSS_COMPILE)gcc    
+LD = $(CROSS_COMPILE)ld
+OBJCOPY = $(CROSS_COMPILE)objcopy
+OBJDUMP = $(CROSS_COMPILE)objdump
+AR = $(CROSS_COMPILE)ar -r
+
+INCLUDES = -I ./include -I .
+#LIBS= -L $(TOPDIR)/build/obj  -L.
+
+AFLAGS = -G 0  -O2 -Wall -Wstrict-prototypes -fno-pic -fno-builtin -mno-abicalls -pipe -mips2 -nostdlib -nostdinc $(INCLUDES)
+#AFLAGS = -N  -nostdlib -nostdinc $(INCLUDES)
+LDFLAGS = -G 0  -static -T ld.script
+#$(LIBS)
+
