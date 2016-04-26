@@ -20,7 +20,6 @@ static inline unsigned int timer_read_reg(unsigned int reg)
 static int timer_irq_init(void)
 {
     int ret;
-    init_irq();
     ret = request_irq(26, timer_irq_handler, (void *)0);
     if (0 != ret)
     {

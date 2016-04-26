@@ -73,7 +73,6 @@ int can_irq_init(unsigned int enable_bits)
 {
     int ret;
     can_write_reg(REG_IER, enable_bits);
-    init_irq();
     ret = request_irq(22, can_irq_handler, (void *)0);
     if (0 != ret)
     {
@@ -209,7 +208,6 @@ void can_init(int mode, int acc, int filter, int brg)
 
 	bare_can_start(mode);
 
-	//can_irq_init(IRQ_RI | IRQ_TI | IRQ_DOI);
 	can_irq_init(IRQ_ALL);
 }
 
