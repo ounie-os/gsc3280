@@ -3,7 +3,7 @@ CFLAGS = $(OPT_CFLAGS)
 PROG_CFLAGS =  -D_GNU_SOURCE -D_REENTRANT -nostdlib -fno-builtin
 TARGET = gpio_gsc3280
 
-INCLUDES = -I./ -I../../canopen/inc -I../../include
+INCLUDES = -I./ -I../../include -I../../canopen/inc
 
 OBJS = $(TARGET).o
 
