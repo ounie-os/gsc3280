@@ -70,4 +70,5 @@ static inline void puts(const char *s)
 {
         printf("%s",s);
 }
+extern unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base);
 #endif /* STDIO */

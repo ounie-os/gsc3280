@@ -4,7 +4,7 @@
 static unsigned long timestamp;
 
 /* how many counter cycles in a jiffy */
-#define CYCLES_PER_JIFFY	(CPU_FREQ_MHZ*1000000 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ
+#define CYCLES_PER_JIFFY	(CPU_FREQ_MHZ*1000000 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ    /* 1ms */
 
 /*
  * timer without interrupts
