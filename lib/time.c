@@ -4,7 +4,14 @@
 static unsigned long timestamp;
 
 /* how many counter cycles in a jiffy */
-#define CYCLES_PER_JIFFY	(CPU_FREQ_MHZ*1000000 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ    /* 1ms */
+#if 0
+#define CYCLES_PER_JIFFY	(CPU_FREQ_MHZ*1000000 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ    /* 2ms */
+#endif /* if 0 end*/
+
+/* 此处除以2的原因是cp0计数器每隔2个时钟周期才加1 */
+/* 按照250MHz的频率计算，计数器1秒钟计数125000000次。即8ns累加一次 */
+#define CYCLES_PER_JIFFY	(((CPU_FREQ_MHZ * 1000000) / CONFIG_SYS_HZ) / 2)    /* 1ms */
+
 
 /*
  * timer without interrupts
