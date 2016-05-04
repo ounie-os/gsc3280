@@ -1157,7 +1157,9 @@ static int gsc3280_mac_reset_eth(void)
 
 	gsc3280_mac_dump_regs();
 
+#if 0
 	GSC3280_MAC_WRITE(1, DMA_RCV_POLL_DEMAND);	/* request input */
+#endif /* if 0 end*/
 
 	/* 
 	 * FIXME: due to unknown hardware issue, a 50ms delay should be 
@@ -1202,5 +1204,24 @@ int gsc3280_eth_init(void)
     gsc3280_mac_init();
 }
 
+static void eth_irq_handler(void *arg)
+{
+    ulong mac_status = GSC3280_MAC_READ(DMA_STATUS);
+    gsc3280_mac_eth_rx();
+    GSC3280_MAC_WRITE(mac_status | DMA_STATUS_ERI | DMA_STATUS_NIS, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
+    
+}
 
+int gsc3280_eth_irq_init(void)
+{
+    int ret;
+    GSC3280_MAC_WRITE(DMA_STATUS_NIS | DMA_STATUS_RI | DMA_STATUS_ERI, DMA_INTR_ENA);
+    ret = request_irq(3, eth_irq_handler, (void *)0);
+    if (0 != ret)
+    {
+        printf("eth_irq_init fail...\n");
+        return -1;
+    }
+    return 0;    
+}
 

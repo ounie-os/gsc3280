@@ -444,6 +444,7 @@ int gsc3280_mac_init(void);
 void gsc3280_mac_halt(void);
 int gsc3280_mac_miiphy_init(void);
 int gsc3280_eth_init(void);	
+int gsc3280_eth_irq_init(void);
 
 
 
