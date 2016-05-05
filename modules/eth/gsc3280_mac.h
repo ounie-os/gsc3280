@@ -435,7 +435,7 @@ struct gsc3280_mac_dma_t
 #define USE_MII_MODE			0x5a
 #define USE_RMII_MODE			0xa5
 
-#define MAC_FRAME_FILTER_RA 0x1
+#define MAC_FRAME_FILTER_RA (0x00000001)
 /*----------------------------------------------------------------------------*/
 
 int gsc3280_mac_eth_tx(unsigned char *data, int len);
@@ -445,6 +445,7 @@ void gsc3280_mac_halt(void);
 int gsc3280_mac_miiphy_init(void);
 int gsc3280_eth_init(void);	
 int gsc3280_eth_irq_init(void);
+void gsc3280_promisc_mode(ulong flag);
 
 
 

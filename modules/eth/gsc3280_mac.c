@@ -1225,3 +1225,21 @@ int gsc3280_eth_irq_init(void)
     return 0;    
 }
 
+/* 设置网卡是否处于混杂模式 */
+void gsc3280_promisc_mode(ulong flag)
+{
+    ulong value;
+	value = GSC3280_MAC_READ(MAC_FRAME_FILTER);
+	if (flag)
+	{
+	    value |= MAC_FRAME_FILTER_RA;
+	    printf("eth enter promisc mode\n");
+	}
+	else
+	{
+	    value &= ~MAC_FRAME_FILTER_RA;
+	    printf("eth leave promisc mode\n");
+	}
+	GSC3280_MAC_WRITE(value, MAC_FRAME_FILTER);  
+}
+
