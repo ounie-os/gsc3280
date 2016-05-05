@@ -1204,6 +1204,70 @@ int gsc3280_eth_init(void)
     gsc3280_mac_init();
 }
 
+static void display_irq_status(u32 status)
+{
+    if (status & DMA_STATUS_TI)
+    {
+        printf("Transmit Interrupt\n");
+    }
+    if (status & DMA_STATUS_TPS)
+    {
+        printf("Transmit Process Stopped\n");
+    }
+    if (status & DMA_STATUS_TU)
+    {
+        printf("Transmit Buffer Unavailable\n");
+    }
+    if (status & DMA_STATUS_TJT)
+    {
+        printf("Transmit Jabber Timeout\n");
+    }
+    if (status & DMA_STATUS_OVF)
+    {
+        printf("Receive Overflow\n");
+    }
+    if (status & DMA_STATUS_UNF)
+    {
+        printf("Transmit Underflow\n");
+    }
+    if (status & DMA_STATUS_RI)
+    {
+        printf("Receive Interrupt\n");
+    }
+    if (status & DMA_STATUS_RU)
+    {
+        printf("Receive Buffer Unavailable\n");
+    }
+    if (status & DMA_STATUS_RPS)
+    {
+        printf("Receive Process Stop\n");
+    }
+    if (status & DMA_STATUS_RWT)
+    {
+        printf("Receive Watchdog Timeout\n");
+    }
+    if (status & DMA_STATUS_ETI)
+    {
+        printf("Early Transmit Interrupt\n");
+    }
+    if (status & DMA_STATUS_FBI)
+    {
+        printf("Fatal Bus Error Interrupt\n");
+    }
+    if (status & DMA_STATUS_ERI)
+    {
+        printf("Early Receive Interrupt\n");
+    }
+    if (status & DMA_STATUS_AIS)
+    {
+        printf("Abnormal Interrupt Summary\n");
+    }
+    if (status & DMA_STATUS_NIS)
+    {
+        printf("Normal Interrupt Summary\n");
+    }
+}
+
 static void eth_irq_handler(void *arg)
 {
     ulong mac_status = GSC3280_MAC_READ(DMA_STATUS);
