@@ -31,7 +31,7 @@
 
 #define UART_FOR_DEBUG 0
 
-#define GC_COM_BASE GC_COM0_BASE
+#define GC_COM_BASE (GC_COM0_BASE + (UART_FOR_DEBUG << 12))
 
 #define UART_SET(idx, value) writeb(value, GC_COM_BASE + idx)
 #define UART_GET(idx) readb(GC_COM0_BASE + idx)
