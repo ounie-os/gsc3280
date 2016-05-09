@@ -369,7 +369,7 @@ int gsc3280_mac_eth_tx(unsigned char *data, int len)
 }
 
 /*----------------------------------------------------------------------------*/
-void gsc3280_mac_eth_rx(void)
+void gsc3280_mac_eth_rx(unsigned char *recv_buf)
 {
 	int frame_len = 0;
 	volatile gsc3280_mac_dma_des *drx;
@@ -411,6 +411,8 @@ void gsc3280_mac_eth_rx(void)
 							p[0], p[1], p[2], p[3], p[4], p[5]);
 				p += 6;
 				dprintf(" Type=%04x\n", p[0]<<8|p[1]);
+
+				memcpy((void *)recv_buf, rx_packets[cur_rx], frame_len);
 #if 0
 				memcpy((void*)NetRxPackets[0], rx_packets[cur_rx], frame_len);
 				NetReceive(NetRxPackets[0], frame_len);
@@ -1271,7 +1273,7 @@ static void display_irq_status(u32 status)
 static void eth_irq_handler(void *arg)
 {
     ulong mac_status = GSC3280_MAC_READ(DMA_STATUS);
-    gsc3280_mac_eth_rx();
+    gsc3280_mac_eth_rx(NULL);
     GSC3280_MAC_WRITE(mac_status | DMA_STATUS_ERI | DMA_STATUS_NIS, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
     
 }

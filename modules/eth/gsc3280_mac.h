@@ -439,7 +439,7 @@ struct gsc3280_mac_dma_t
 /*----------------------------------------------------------------------------*/
 
 int gsc3280_mac_eth_tx(unsigned char *data, int len);
-void gsc3280_mac_eth_rx(void);
+void gsc3280_mac_eth_rx(unsigned char *recv_buf);
 int gsc3280_mac_init(void);
 void gsc3280_mac_halt(void);
 int gsc3280_mac_miiphy_init(void);

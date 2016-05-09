@@ -8,7 +8,7 @@ AFLAGS = -G 0  -Os -Wall -Wstrict-prototypes -fpic -fno-builtin -mabicalls -pipe
 CPU_FREQ_MHZ = 250
 export CC LD OBJCOPY OBJDUMP AFLAGS CPU_FREQ_MHZ
 
-SUBDIR := lib canopen common modules app
+SUBDIR := lib canopen common modules app test
 
 all: subdir
 
