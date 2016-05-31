@@ -369,10 +369,11 @@ int gsc3280_mac_eth_tx(unsigned char *data, int len)
 }
 
 /*----------------------------------------------------------------------------*/
-void gsc3280_mac_eth_rx(unsigned char *recv_buf)
+int gsc3280_mac_eth_rx(unsigned char *recv_buf)
 {
 	int frame_len = 0;
 	volatile gsc3280_mac_dma_des *drx;
+    int ret = 0;
 
 	/* select the RX descriptor to use */
 	drx = dma_rx + cur_rx;
@@ -382,6 +383,8 @@ void gsc3280_mac_eth_rx(unsigned char *recv_buf)
 		printf("%s: [dma drx = 0x%x, cur_rx=%d]\n", 
 							__FUNCTION__, (unsigned int)drx, cur_rx);
 		display_dma_desc_ring(dma_rx, CONFIG_DMA_RX_SIZE);
+
+		return -1;
 	}
 
 	if (!(drx->des01.rx.own) && (drx->des01.rx.last_descriptor)) 
@@ -392,7 +395,7 @@ void gsc3280_mac_eth_rx(unsigned char *recv_buf)
 		/* Check if the frame was not successfully received */
 		if (check_rx_error_summary((gsc3280_mac_dma_des *)drx) < 0) 
 		{
-			
+			ret = -1;
 		} 
 		else if (drx->des01.rx.first_descriptor 
 							&& drx->des01.rx.last_descriptor) 
@@ -413,6 +416,7 @@ void gsc3280_mac_eth_rx(unsigned char *recv_buf)
 				dprintf(" Type=%04x\n", p[0]<<8|p[1]);
 
 				memcpy((void *)recv_buf, rx_packets[cur_rx], frame_len);
+				ret = frame_len;
 #if 0
 				memcpy((void*)NetRxPackets[0], rx_packets[cur_rx], frame_len);
 				NetReceive(NetRxPackets[0], frame_len);
@@ -421,13 +425,13 @@ void gsc3280_mac_eth_rx(unsigned char *recv_buf)
 			else 
 			{
 				printf("%s: Framelen %d too long\n", __FUNCTION__, frame_len);
+				ret = -1;
 			}
-
-			dprintf("%s: frame received \n", __FUNCTION__);
 		} 
 		else 
 		{
 			printf("%s: very long frame received\n", __FUNCTION__);
+			ret = -1;
 		}
 
 		drx->des01.rx.own = 1;
@@ -441,9 +445,10 @@ void gsc3280_mac_eth_rx(unsigned char *recv_buf)
 	else 
 	{
 		GSC3280_MAC_WRITE(1, DMA_RCV_POLL_DEMAND);	/* request input */
+		ret = -1;
 	}
 	
-	return;
+	return ret;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1307,5 +1312,10 @@ void gsc3280_promisc_mode(ulong flag)
 	    printf("eth leave promisc mode\n");
 	}
 	GSC3280_MAC_WRITE(value, MAC_FRAME_FILTER);  
+}
+
+int gsc3280_get_mac_addr(unsigned char *addr)
+{
+    return gsc3280_mac_get_mac_addr(addr);
 }
 

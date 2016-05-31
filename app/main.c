@@ -6,6 +6,7 @@
 #include "canfestival.h"
 #include "OD_0_0.h"
 #include "task.h"
+#include "netconfig.h"
 
 int __init_0();
 
@@ -25,6 +26,8 @@ int main_loop(void)
 #endif /* if 0 end*/
 
     __init_0();    /* ≥ı ºªØcanopen */
+
+    lwip_stack_init();
     
 
     while (1)

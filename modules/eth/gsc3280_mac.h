@@ -439,14 +439,14 @@ struct gsc3280_mac_dma_t
 /*----------------------------------------------------------------------------*/
 
 int gsc3280_mac_eth_tx(unsigned char *data, int len);
-void gsc3280_mac_eth_rx(unsigned char *recv_buf);
+int gsc3280_mac_eth_rx(unsigned char *recv_buf);
 int gsc3280_mac_init(void);
 void gsc3280_mac_halt(void);
 int gsc3280_mac_miiphy_init(void);
 int gsc3280_eth_init(void);	
 int gsc3280_eth_irq_init(void);
 void gsc3280_promisc_mode(ulong flag);
-
+int gsc3280_get_mac_addr(unsigned char *addr);
 
 
 #endif
