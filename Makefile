@@ -8,13 +8,13 @@ AFLAGS = -G 0  -Os -Wall -Wstrict-prototypes -fpic -fno-builtin -mabicalls -pipe
 CPU_FREQ_MHZ = 250
 export CC LD OBJCOPY OBJDUMP AFLAGS CPU_FREQ_MHZ
 
-SUBDIR := lib canopen common modules lwip app
+SUBDIR := lib canopen modules lwip app
 
 all: subdir
 
 subdir:
 	for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir ; \
+		$(MAKE) -C $$dir || exit "$$?"; \
 	done
 
 .PHONY: clean

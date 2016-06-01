@@ -132,6 +132,13 @@ tcp_init(void)
 #if LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS && defined(LWIP_RAND)
   tcp_port = TCP_ENSURE_LOCAL_PORT_RANGE(LWIP_RAND());
 #endif /* LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS && defined(LWIP_RAND) */
+
+    tcp_bound_pcbs = NULL;
+    tcp_listen_pcbs.listen_pcbs = NULL;
+    tcp_listen_pcbs.pcbs = NULL;
+    tcp_active_pcbs = NULL;
+    tcp_tw_pcbs = NULL;
+    tcp_tmp_pcb = NULL;
 }
 
 /**

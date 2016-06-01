@@ -26,6 +26,8 @@
 #include <gsc3280_mac.h>
 #include <gsc3280_regs.h>
 
+#include "netconfig.h"
+
 
 //#define FORCE_USE_10MFULL
 //#define DEBUG
@@ -1278,7 +1280,7 @@ static void display_irq_status(u32 status)
 static void eth_irq_handler(void *arg)
 {
     ulong mac_status = GSC3280_MAC_READ(DMA_STATUS);
-    gsc3280_mac_eth_rx(NULL);
+    lwip_stack_input();
     GSC3280_MAC_WRITE(mac_status | DMA_STATUS_ERI | DMA_STATUS_NIS, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
     
 }

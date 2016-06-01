@@ -1,5 +1,6 @@
 #include "lwip/init.h"
 #include "lwip/netif.h"
+#include "netif/etharp.h"
 #include "netconfig.h"
 
 struct netif gsc3280_netif;
@@ -16,9 +17,14 @@ void lwip_stack_init(void)
     IP4_ADDR(&netmask, 255, 255, 255, 0);		
     IP4_ADDR(&gw, 192, 168, 2, 1);
 
-    netif_add(&gsc3280_netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernetif_input);
+    netif_add(&gsc3280_netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
 
     netif_set_default(&gsc3280_netif);
 
     netif_set_up(&gsc3280_netif);
+}
+
+void lwip_stack_input(void)
+{
+    ethernetif_input(&gsc3280_netif);
 }

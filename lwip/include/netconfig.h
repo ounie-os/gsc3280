@@ -7,5 +7,6 @@
 extern void ethernetif_input(struct netif *netif);
 extern err_t ethernetif_init(struct netif *netif);
 void lwip_stack_init(void);
+void lwip_stack_input(void);
 
 #endif
