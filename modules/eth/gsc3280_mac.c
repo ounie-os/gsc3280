@@ -1280,15 +1280,17 @@ static void display_irq_status(u32 status)
 static void eth_irq_handler(void *arg)
 {
     ulong mac_status = GSC3280_MAC_READ(DMA_STATUS);
+#if 0
+    display_irq_status(mac_status);
+#endif /* if 0 end*/
     lwip_stack_input();
-    GSC3280_MAC_WRITE(mac_status | DMA_STATUS_ERI | DMA_STATUS_NIS, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
-    
+    GSC3280_MAC_WRITE(0xffff, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
 }
 
 int gsc3280_eth_irq_init(void)
 {
     int ret;
-    GSC3280_MAC_WRITE(DMA_STATUS_NIS | DMA_STATUS_RI | DMA_STATUS_ERI, DMA_INTR_ENA);
+    GSC3280_MAC_WRITE(DMA_STATUS_NIS | DMA_STATUS_RI | DMA_STATUS_ERI | DMA_STATUS_RU, DMA_INTR_ENA);
     ret = request_irq(3, eth_irq_handler, (void *)0);
     if (0 != ret)
     {

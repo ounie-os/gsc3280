@@ -181,7 +181,7 @@ low_level_input(struct netif *netif)
 {
     struct ethernetif *ethernetif = netif->state;
     struct pbuf *p, *q;
-    u16_t len;
+    s16_t len;
     int i = 0;
 
     /* Obtain the size of the packet and put it into the "len"
