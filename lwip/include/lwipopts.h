@@ -13,11 +13,12 @@
 
 #define NO_SYS_NO_TIMERS   1
 
-#define LWIP_DHCP     1
+#define LWIP_DHCP     0
 
 //#define LWIP_PROVIDE_ERRNO
 
 #define LWIP_NOASSERT
+#define LWIP_STATS 0
 
 /*************************************************************************************************************************************/
 #define ETHARP_TMR_INTERVAL             5000  /* Time in milliseconds to perform ARP processing */

@@ -381,8 +381,12 @@ ip_input(struct pbuf *p, struct netif *inp)
   pbuf_realloc(p, iphdr_len);
 
   /* copy IP addresses to aligned ip_addr_t */
+#if 0
   ip_addr_copy(current_iphdr_dest, iphdr->dest);
   ip_addr_copy(current_iphdr_src, iphdr->src);
+#endif /* if 0 end*/
+    memcpy(&current_iphdr_dest, &(iphdr->dest), sizeof(ip_addr_t));
+    memcpy(&current_iphdr_src, &(iphdr->src), sizeof(ip_addr_t));
 
   /* match packet against an interface, i.e. is this packet for us? */
 #if LWIP_IGMP
@@ -401,11 +405,13 @@ ip_input(struct pbuf *p, struct netif *inp)
     int first = 1;
     netif = inp;
     do {
+#if 0
       LWIP_DEBUGF(IP_DEBUG, ("ip_input: iphdr->dest 0x%"X32_F" netif->ip_addr 0x%"X32_F" (0x%"X32_F", 0x%"X32_F", 0x%"X32_F")\n",
           ip4_addr_get_u32(&iphdr->dest), ip4_addr_get_u32(&netif->ip_addr),
           ip4_addr_get_u32(&iphdr->dest) & ip4_addr_get_u32(&netif->netmask),
           ip4_addr_get_u32(&netif->ip_addr) & ip4_addr_get_u32(&netif->netmask),
           ip4_addr_get_u32(&iphdr->dest) & ~ip4_addr_get_u32(&netif->netmask)));
+#endif /* if 0 end*/
 
       /* interface is up and configured? */
       if ((netif_is_up(netif)) && (!ip_addr_isany(&(netif->ip_addr)))) {

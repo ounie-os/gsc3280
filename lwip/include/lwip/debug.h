@@ -86,7 +86,7 @@
                                    ((s16_t)((debug) & LWIP_DBG_MASK_LEVEL) >= LWIP_DBG_MIN_LEVEL)) { \
                                  LWIP_PLATFORM_DIAG(message); \
                                  if ((debug) & LWIP_DBG_HALT) { \
-                                   while(1); \
+                                   printf("DEBUG HALT\n");while(1); \
                                  } \
                                } \
                              } while(0)
