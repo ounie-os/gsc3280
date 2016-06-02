@@ -9,6 +9,7 @@
 #include "net.h"
 #include "lwip/tcp.h"
 #include "lwip/ip_addr.h"
+#include "netif/etharp.h"
 
 #include "httpd.h"
 
@@ -19,6 +20,7 @@ const static u8_t led_ctrl_off[] =LED_CTRL_OFF;
 
 
 static int gpio_flag = 0;
+static u8 time_count = 0;
 
 static unsigned char FrameBuf[1500]=    
 {        
@@ -31,9 +33,9 @@ void eth_send_test(void)
 {
 	int i;
 	
-	gsc3280_eth_init();
+	//gsc3280_eth_init();
 
-    for(i=0;i<1000;i++)
+    for(i=0;i<10;i++)
         gsc3280_mac_eth_tx(FrameBuf, 150);
 }
 
@@ -166,7 +168,15 @@ void httpd_init(void)
 
 static void timer3_handle(void)
 {
+    time_count++;
     tcp_tmr();
+
+    if (time_count >= 20)
+    {
+        etharp_tmr();
+        time_count = 0;
+    }
+    
     if (gpio_flag)
     {
         gpio_flag = 0;
@@ -203,7 +213,9 @@ int main_loop(void)
     stack_init();
 #endif /* if 0 end*/
 
+#if 0
     httpd_init();
+#endif /* if 0 end*/
 
     while (1)
     {
