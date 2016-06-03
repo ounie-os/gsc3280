@@ -4,7 +4,7 @@ all: subdir
 
 subdir:
 	for dir in $(SUBDIR); do \
-		$(MAKE) -C $$dir ; \
+		$(MAKE) -C $$dir || exit "$$?"; \
 	done
 
 .PHONY: clean
