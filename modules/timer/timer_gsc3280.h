@@ -4,7 +4,29 @@
 #include <types.h>
 
 #define TIMER_BASE_ADDR 0xbc114000
+
+#define TIMER0_CLK_DIV  0x9
+#define TIMER1_CLK_DIV  0x9
+#define TIMER2_CLK_DIV  0x9
 #define TIMER3_CLK_DIV  0x9
+
+#define TIMER0_TLC      0x00
+#define TIMER0_TCV      0x04
+#define TIMER0_TCR      0x08
+#define TIMER0_TOEI     0x0c
+#define TIMER0_TIS      0x10
+
+#define TIMER1_TLC      0x14
+#define TIMER1_TCV      0x18
+#define TIMER1_TCR      0x1c
+#define TIMER1_TOEI     0x20
+#define TIMER1_TIS      0x24
+
+#define TIMER2_TLC      0x28
+#define TIMER2_TCV      0x2c
+#define TIMER2_TCR      0x30
+#define TIMER2_TOEI     0x34
+#define TIMER2_TIS      0x38
 
 #define TIMER3_TLC      0x3c
 #define TIMER3_TCV      0x40
@@ -40,9 +62,6 @@ typedef enum
 #else
 #define timer_debug(fmt, args...)
 #endif
-
-typedef void (*rt_handler_t)();
-
 
 void generic_timer_init(TIMER_INDEX index, void *arg);
 u_int32_t timer_get_count(TIMER_INDEX index);
