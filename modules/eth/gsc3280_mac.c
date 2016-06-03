@@ -1284,7 +1284,7 @@ static void eth_irq_handler(void *arg)
     display_irq_status(mac_status);
 #endif /* if 0 end*/
     lwip_stack_input();
-    GSC3280_MAC_WRITE(0xffff, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
+    GSC3280_MAC_WRITE(0x1ffff, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
 }
 
 int gsc3280_eth_irq_init(void)
