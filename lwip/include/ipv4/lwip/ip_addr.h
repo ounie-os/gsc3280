@@ -159,7 +159,12 @@ extern const ip_addr_t ip_addr_broadcast;
 #endif
 
 /** Copy IP address - faster than ip_addr_set: no NULL check */
+#if 0
 #define ip_addr_copy(dest, src) ((dest).addr = (src).addr)
+#endif /* if 0 end*/
+
+#define ip_addr_copy(dest, src) IPADDR2_COPY(&dest, &src)
+
 /** Safely copy one IP address to another (src may be NULL) */
 #define ip_addr_set(dest, src) ((dest)->addr = \
                                     ((src) == NULL ? 0 : \
