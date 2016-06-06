@@ -1,9 +1,9 @@
-VPATH = ../common ../lib/ ../canopen/user ../canopen/src ../canopen/bsp ../modules/can ../modules/gpio ../modules/timer ../modules/eth ../lwip
+VPATH = ../common ../lib/ ../canopen/user ../canopen/src ../canopen/bsp ../modules/can ../modules/gpio ../modules/timer ../modules/eth ../modules/uart ../lwip
 LDFLAGS = -G 0  -static -T ../common/ld.script
 
 TARGET = app
-OBJS =  start.S start.c task.c main.c timer_gsc3280.o can_gsc3280.o gpio_gsc3280.o eth_gsc3280.o libcanopenuser.o libcanopenbsp.o libcanfestival.o lwip.o libc.a
-INCLUDES = -I./ -I../include -I../canopen/inc -I../canopen/user -I../modules/can -I../modules/timer -I../modules/gpio -I../modules/eth -I../lwip/include -I../lwip/include/ipv4
+OBJS =  start.S start.c task.c main.c timer_gsc3280.o can_gsc3280.o gpio_gsc3280.o eth_gsc3280.o uart_gsc3280.o libcanopenuser.o libcanopenbsp.o libcanfestival.o lwip.o libc.a
+INCLUDES = -I./ -I../include -I../canopen/inc -I../canopen/user -I../modules/can -I../modules/timer -I../modules/gpio -I../modules/eth -I../modules/uart -I../lwip/include -I../lwip/include/ipv4
 
 $(TARGET): $(OBJS)
 	@echo " "

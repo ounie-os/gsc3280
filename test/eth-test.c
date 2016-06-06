@@ -166,7 +166,7 @@ void httpd_init(void)
 
 
 
-static void timer3_handle(void)
+static void timer0_handle(void)
 {
     time_count++;
     tcp_tmr();
@@ -186,16 +186,25 @@ static void timer3_handle(void)
     {
         gpio_flag = 1;
         GPIOA_Set_Value(31, 1);
-    }    
+    }
+    GPIOC_Set_Value(23, 0);
+}
+
+void buserr_irq_handler(void)
+{
+    printf("bus err\n");
 }
 
 int main_loop(void)
 {
     init_irq();
 
+    request_irq(30, buserr_irq_handler, (void *)0);
+
     GPIO_Enable();
 
     GPIOA_Set_Dir(31, GPIO_OUTPUT);
+    GPIOC_Set_Dir(23, GPIO_OUTPUT);
 
     lwip_stack_init();
 
@@ -205,9 +214,9 @@ int main_loop(void)
 
     printf("eth irq init done\n");
 
-    generic_timer_init(TIMER3, (void *)timer3_handle);    /* 定时器中断中，调用systick_task函数 */
+    generic_timer_init(TIMER0, (void *)timer0_handle);
 
-    timer_setup_by_ms(250, TIMER3);
+    timer_setup_by_ms(250, TIMER0);
 
 #if 0
     stack_init();

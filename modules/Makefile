@@ -1,4 +1,4 @@
-SUBDIR := can gpio timer eth
+SUBDIR := can gpio timer eth uart
 
 all: subdir
 
