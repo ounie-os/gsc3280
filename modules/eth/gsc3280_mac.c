@@ -53,6 +53,9 @@ static volatile gsc3280_mac_dma_des *dma_rx = NULL;
 static int cur_rx = 0;
 static void *rx_packets[CONFIG_DMA_RX_SIZE] = { 0 };
 
+#ifndef LWIP
+unsigned char gsc3280_rx_buf[PKTSIZE_ALIGN];
+#endif
 
 /*----------------------------------------------------------------------------*/
 /* DMA operation
@@ -1283,7 +1286,11 @@ static void eth_irq_handler(void *arg)
 #if 0
     display_irq_status(mac_status);
 #endif /* if 0 end*/
+#ifdef LWIP
     lwip_stack_input();
+#else
+    gsc3280_mac_eth_rx(&gsc3280_rx_buf[0]);
+#endif
     GSC3280_MAC_WRITE(0x1ffff, DMA_STATUS);    /* ??3y?D??¡À¨º???? */
 }
 

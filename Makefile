@@ -6,9 +6,15 @@ AR = $(CROSS_COMPILE)ar -r
 LD = $(CROSS_COMPILE)ld
 AFLAGS = -G 0  -Os -Wall -Wstrict-prototypes -fpic -fno-builtin -mabicalls -pipe -mips2 -nostdlib -nostdinc -msoft-float -mlong-calls -EL
 CPU_FREQ_MHZ = 250
-export CC LD OBJCOPY OBJDUMP AFLAGS CPU_FREQ_MHZ
+LWIP = 0
+export CC LD OBJCOPY OBJDUMP AFLAGS CPU_FREQ_MHZ LWIP
 
-SUBDIR := lib canopen modules lwip app
+SUBDIR := lib canopen modules
+ifeq ($(LWIP),1)
+SUBDIR += lwip
+endif
+
+SUBDIR += app
 
 all: subdir
 
