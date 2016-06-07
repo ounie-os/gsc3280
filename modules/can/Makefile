@@ -4,7 +4,7 @@ PROG_CFLAGS =  -D_GNU_SOURCE -D_REENTRANT -nostdlib -fno-builtin
 PROGDEFINES = -DUSE_CAN0
 TARGET = can_gsc3280
 
-INCLUDES = -I./ -I../../include -I../../canopen/inc -I../../canopen/user
+INCLUDES = -I./ -I../../include -I../../include/modules -I../../canopen/inc -I../../canopen/user
 
 OBJS = $(TARGET).o
 
