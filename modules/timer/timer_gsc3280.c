@@ -6,7 +6,7 @@
 
 #define ref_clk 12000000
 
-static u_int32_t timer_freq;
+static u_int32_t timer_freq[4];
 
 typedef void (*rt_handler_t)();
 
@@ -86,9 +86,8 @@ void generic_timer_init(TIMER_INDEX index, void *arg)
 	
 	ahb=readl(SYSCTL_CLKDIV_AHB);
 	apb=readl(SYSCTL_CLKDIV_APB);
-	dll=pll_rate / ((ahb + 1) * (apb + 1) * ((TIMER3_CLK_DIV + 1) << 1));    /* ????????,????????2 */
+	dll=pll_rate / ((ahb + 1) * (apb + 1) * ((TIMER_GENEGIC_CLK_DIV + 1) << 1));    /* ????????,????????2 */
 	timer_debug("timer clock is %lu(0x%08x)\n", dll, dll);
-	timer_freq = dll;
 
     switch (index)
     {
@@ -96,6 +95,7 @@ void generic_timer_init(TIMER_INDEX index, void *arg)
         {
             sysctl_mod_enable(SYSCTL_MOD_TIMER0);
             writel(TIMER0_CLK_DIV, SYSCTL_CLKDIV_TIMER0);
+            timer_freq[TIMER0] = dll / ((TIMER0_CLK_DIV + 1) << 1);
             timer_func[TIMER0] = (rt_handler_t)arg;           
             break;   
         }
@@ -104,6 +104,7 @@ void generic_timer_init(TIMER_INDEX index, void *arg)
         {
             sysctl_mod_enable(SYSCTL_MOD_TIMER1);
             writel(TIMER1_CLK_DIV, SYSCTL_CLKDIV_TIMER1);
+            timer_freq[TIMER1] = dll / ((TIMER1_CLK_DIV + 1) << 1);
             timer_func[TIMER1] = (rt_handler_t)arg;           
             break;   
         }
@@ -112,6 +113,7 @@ void generic_timer_init(TIMER_INDEX index, void *arg)
         {
             sysctl_mod_enable(SYSCTL_MOD_TIMER2);
             writel(TIMER2_CLK_DIV, SYSCTL_CLKDIV_TIMER2);
+            timer_freq[TIMER2] = dll / ((TIMER2_CLK_DIV + 1) << 1);
             timer_func[TIMER2] = (rt_handler_t)arg;           
             break;   
         }
@@ -120,6 +122,7 @@ void generic_timer_init(TIMER_INDEX index, void *arg)
         {
             sysctl_mod_enable(SYSCTL_MOD_TIMER3);
             writel(TIMER3_CLK_DIV, SYSCTL_CLKDIV_TIMER3);
+            timer_freq[TIMER3] = dll / ((TIMER3_CLK_DIV + 1) << 1);
             timer_func[TIMER3] = (rt_handler_t)arg;           
             break;   
         }
@@ -128,6 +131,7 @@ void generic_timer_init(TIMER_INDEX index, void *arg)
             break;
         }
     }
+    timer_debug("timer_freq[%d] = %lu\n", index, timer_freq[index]);
     timer_irq_init();
 }
 
@@ -472,30 +476,18 @@ void timer_set_reload_count(u_int32_t value, TIMER_INDEX index)
     }
 }
 
-void timer_set_reload_by_ms(u_int32_t period_ms, TIMER_INDEX index)
+void timer_set_reload_by_us(u_int32_t period_us, TIMER_INDEX index)
 {
-    u_int32_t time_reg_count = 0;
-    u_int32_t second, milli_second;
-    if (period_ms <= 1000)    /* ??1? */
-    {
-        time_reg_count = (timer_freq * period_ms) / 1000;
-    }
-    else
-    {
-        second = period_ms / 1000;
-        milli_second = period_ms % 1000;
-        printf("second = %lu, milli_second = %lu\n", second, milli_second);
-        time_reg_count = second * timer_freq + (timer_freq * milli_second) / 1000;
-    }
+    u_int32_t time_reg_count = (timer_freq[index] * (period_us << 1)) / 1000000;
     timer_debug("time_reg_count = %lu\n", time_reg_count);
     timer_set_reload_count(time_reg_count, index);
 }
 
-void timer_setup_by_ms(u_int32_t period_ms, TIMER_INDEX index)
+void timer_setup_by_us(u_int32_t period_us, TIMER_INDEX index)
 {
     timer_set_cycle_mode(index);
     timer_enable_irq(index);
-    timer_set_reload_by_ms(period_ms, index);
+    timer_set_reload_by_us(period_us, index);
     timer_start(index);
 }
 

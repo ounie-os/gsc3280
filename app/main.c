@@ -32,11 +32,6 @@ int main_loop(void)
 	
 	canOpen(NULL, &OD_0_0_Data);
 	
-#if 0
-    generic_timer_init(TIMER0, (void *)systick_task);    /* 定时器中断中，调用systick_task函数 */
-
-    timer_setup_by_ms(4, TIMER0);
-#endif /* if 0 end*/
 
     __init_0();    /* 初始化canopen */
 
