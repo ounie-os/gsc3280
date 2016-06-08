@@ -208,14 +208,14 @@ static void uart_request_irq(unsigned int uart_irq_index, irq_handler_t uart_irq
     int ret = 0;
     switch (uart_irq_index)
     {
-        case IRQ_UART6:
+        case IRQ_UART3:
         {
-            uart_enable_irq(UART6, 1, 1);
+            uart_enable_irq(UART3, 1, 1);
             ret = request_irq(uart_irq_index, uart_irq_handle, (void *)hook);
             if (ret < 0)
             {
                 printf("request_irq uart3 fail\n");
-                uart_enable_irq(UART6, 0, 0);
+                uart_enable_irq(UART3, 0, 0);
             }
             break;
         }
@@ -286,12 +286,12 @@ void uart_init(unsigned int UART,unsigned int baud)
     unsigned int irq_index;
 	uart_get_pll();
 	uart_set_dll(UART, baud);
-	if (UART == UART6)
+	if (UART == UART3)
 	{
 #ifdef MODBUS
-	    uart_request_irq(IRQ_UART6, uart_mb_irq_handle, NULL);
+	    uart_request_irq(IRQ_UART3, uart_mb_irq_handle, NULL);
 #else
-        uart_request_irq(IRQ_UART6, uart_generic_handle, NULL);
+        uart_request_irq(IRQ_UART3, uart_generic_handle, NULL);
 #endif
 	}
 	else if (UART == UART4)

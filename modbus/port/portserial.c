@@ -38,7 +38,7 @@
 #include "mbport.h"
 /* ----------------------- Defines ------------------------------------------*/
 
-#define MB_UART UART6
+#define MB_UART UART3
 
 /* ----------------------- Start implementation -----------------------------*/
 void
