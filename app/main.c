@@ -1,42 +1,65 @@
 #include <stdio.h>
+#include <def.h>
 #include "can_gsc3280.h"
 #include "timer_gsc3280.h"
 #include "gpio_gsc3280.h"
-#include "uart_gsc3280.h"
-#include <def.h>
+#include "gsc3280_mac.h"
 #include "canfestival.h"
 #include "OD_0_0.h"
-#include "task.h"
-#include "netconfig.h"
+#include "net.h"
+#include "lwip/tcp.h"
+#include "lwip/ip_addr.h"
+#include "netif/etharp.h"
 
-int __init_0();
 
-uart_handler_t uart3_hook(char *src)
+static int gpio_flag = 0;
+#if 0
+static u8 time_count = 0;
+
+static unsigned char FrameBuf[1500]=    
+{        
+    0x12,0x12,0x12,0x12,0x12,0x12,        
+    0x22,0x22,0x22,0x22,0x22,0x22,        
+    0x88,0xa4,0x0e,0x10    
+};
+
+void eth_send_test(void)
 {
-    int i = 0;
-    for(i=0;i<UART_RX_BUFFER_LENGTH;i++)
+	int i;
+	
+	//gsc3280_eth_init();
+
+    for(i=0;i<10;i++)
+        gsc3280_mac_eth_tx(FrameBuf, 150);
+}
+#endif /* if 0 end*/
+	
+static void timer0_handle(void)
+{
+    if (gpio_flag)
     {
-        if (src[i])
-            uart_putc(UART3, src[i]);
-        else
-            break;
+        gpio_flag = 0;
+        GPIOA_Set_Value(31, 0);
     }
-    uart_putc(UART3, '\n');
+    else
+    {
+        gpio_flag = 1;
+        GPIOA_Set_Value(31, 1);
+    }
 }
 
 int main_loop(void)
 {
-    init_irq();    /* 此函数只能调一次。否则会将已经注册的中断函数覆盖掉 */
+    init_irq();
 
-	can_init(MOD_WK, ACR, AMR, CAN_BAUDRATE);
-	
-	canOpen(NULL, &OD_0_0_Data);
-	
+    GPIO_Enable();
 
-    __init_0();    /* 初始化canopen */
+    GPIOA_Set_Dir(31, GPIO_OUTPUT);
+    GPIOC_Set_Dir(23, GPIO_OUTPUT);
 
-    uart_init(UART3, 115200);
-    uart_request_irq(IRQ_UART3, uart3_hook);
+    generic_timer_init(TIMER0, (void *)timer0_handle);
+
+    timer_setup_by_us(250000, TIMER0);
 
     while (1)
     {

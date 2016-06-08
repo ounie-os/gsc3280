@@ -478,7 +478,7 @@ void timer_set_reload_count(u_int32_t value, TIMER_INDEX index)
 
 void timer_set_reload_by_us(u_int32_t period_us, TIMER_INDEX index)
 {
-    u_int32_t time_reg_count = (timer_freq[index] * (period_us << 1)) / 1000000;
+    u_int32_t time_reg_count = ((timer_freq[index] / 1000) * (period_us << 1)) / 1000;
     timer_debug("time_reg_count = %lu\n", time_reg_count);
     timer_set_reload_count(time_reg_count, index);
 }
