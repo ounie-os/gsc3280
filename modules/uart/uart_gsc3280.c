@@ -1,8 +1,9 @@
 #include "uart_gsc3280.h"
+#include "port.h"
 
 static unsigned int freq,pll_rate,dll,ahb,apb;
-static unsigned char uart3_rx_buf[UART_RX_BUFFER_LENGTH];
-static unsigned char uart4_rx_buf[UART_RX_BUFFER_LENGTH];
+static volatile unsigned char uart3_rx_buf[UART_RX_BUFFER_LENGTH];
+static volatile unsigned char uart4_rx_buf[UART_RX_BUFFER_LENGTH];
 
 
 static void uart_get_pll(void)
@@ -147,90 +148,86 @@ char uart_getc(unsigned int UART)
 		return 0;
 }
 
-void uart_init(unsigned int UART,unsigned int baud)
+void uart_enable_irq(unsigned int UART, unsigned int tx_enable, unsigned int rx_enable)
 {
-	uart_get_pll();
-	uart_set_dll(UART, baud);	
+    unsigned char ier_status = readb(UART + IER);
+
+    if (tx_enable)
+    {
+        ier_status |= UART_IER_THREIE;
+    }
+    else
+    {
+        ier_status &= ~UART_IER_THREIE;
+    }
+
+    if (rx_enable)
+    {
+        ier_status |= UART_IER_RDAIE;
+    }
+    else
+    {
+        ier_status &= ~UART_IER_RDAIE;
+    }
+
+    writeb(ier_status, UART + IER);
 }
 
-void uart_enable_rx_irq(unsigned int UART)
+static void uart_rx_process(unsigned int UART, void *arg)
 {
-    writeb(0x1, UART + IER);
+    printf("uart_rx_process\n");
 }
 
-void uart_disable_rx_irq(unsigned int UART)
+static void uart_tx_process(unsigned int UART, void *arg)
 {
-    writeb(0x0, UART + IER);
+    printf("uart_tx_process\n");
 }
 
-static void handler_uart3(void *arg)
+void uart4_handler(void *arg)
 {
-	unsigned char c=0,i=0;
+    volatile unsigned char lsr = *(volatile unsigned char *)(UART4 + IIR);
 
-    uart_handler_t func = (uart_handler_t)arg;
-	
-	c = uart_getc(UART3);
-	while((c > 0) && (c != '\n') && (i < UART_RX_BUFFER_LENGTH - 1))
-	{
-		uart3_rx_buf[i] = c;
-		c = uart_getc(UART3);
-		i++;
-	}
-	uart3_rx_buf[i] = 0;
-
-	if (NULL != func)
-	{
-	    func(&uart3_rx_buf[0]);
-	}
-	
+    if ((lsr == UART_IIR_RDA) || (lsr == UART_IIR_TIMEOUT))
+    {
+        uart_rx_process(UART4, arg);
+    }
+    else if (lsr == UART_IIR_THRE)
+    {
+        uart_tx_process(UART4, arg);
+    }
+    printf("uart4_handler\n");
 }
 
-static void handler_uart4(void *arg)
+void uart_generic_handle(void *arg)
 {
-	unsigned char c=0,i=0;
-
-	uart_handler_t func = (uart_handler_t)arg;
-	
-	c = uart_getc(UART4);
-	while((c > 0) && (c != '\n') && (i < UART_RX_BUFFER_LENGTH - 1))
-	{
-		uart4_rx_buf[i] = c;
-		c = uart_getc(UART4);
-		i++;
-	}
-	uart4_rx_buf[i] = 0;
-	
-    if (NULL != func)
-	{
-	    func(&uart4_rx_buf[0]);
-	}
+    printf("uart_generic_handle\n");
 }
 
-void uart_request_irq(unsigned int uart_irq_index, uart_handler_t rx_hook_func)
+static void uart_request_irq(unsigned int uart_irq_index, irq_handler_t uart_irq_handle, irq_handler_t hook)
 {
     int ret = 0;
     switch (uart_irq_index)
     {
-        case IRQ_UART3:
+        case IRQ_UART6:
         {
-            uart_enable_rx_irq(UART3);
-            ret = request_irq(uart_irq_index, (void *)handler_uart3, (void *)rx_hook_func);
+            uart_enable_irq(UART6, 1, 1);
+            ret = request_irq(uart_irq_index, uart_irq_handle, (void *)hook);
             if (ret < 0)
             {
                 printf("request_irq uart3 fail\n");
-                uart_disable_rx_irq(UART3);
+                uart_enable_irq(UART6, 0, 0);
             }
             break;
         }
         
         case IRQ_UART4:
         {
-            uart_enable_rx_irq(UART4);
-            ret = request_irq(uart_irq_index, (void *)handler_uart4, (void *)rx_hook_func);
+            uart_enable_irq(UART4, 1, 1);
+            ret = request_irq(uart_irq_index, uart_irq_handle, (void *)hook);
             if (ret < 0)
             {
                 printf("request_irq uart4 fail\n");
-                uart_disable_rx_irq(UART4);
+                uart_enable_irq(UART4, 0, 0);
             }            
             break;
         }
@@ -243,6 +240,7 @@ void uart_request_irq(unsigned int uart_irq_index, uart_handler_t rx_hook_func)
     }
 }
 
+#if 0
 void uart_output_rxbuf(unsigned int uart_irq_index)
 {
     int i = 0;
@@ -276,8 +274,29 @@ void uart_output_rxbuf(unsigned int uart_irq_index)
 
     }
 }
+#endif /* if 0 end*/
 
 void uart_send_string(unsigned int UART, char *src)
 {
     uart_puts(UART, src);
 }
+
+void uart_init(unsigned int UART,unsigned int baud)
+{
+    unsigned int irq_index;
+	uart_get_pll();
+	uart_set_dll(UART, baud);
+	if (UART == UART6)
+	{
+#ifdef MODBUS
+	    uart_request_irq(IRQ_UART6, uart_mb_irq_handle, NULL);
+#else
+        uart_request_irq(IRQ_UART6, uart_generic_handle, NULL);
+#endif
+	}
+	else if (UART == UART4)
+	{
+	    uart_request_irq(IRQ_UART4, uart4_handler, NULL);
+	}
+}
+

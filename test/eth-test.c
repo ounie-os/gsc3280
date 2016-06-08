@@ -57,9 +57,9 @@ int main_loop(void)
     GPIOA_Set_Dir(31, GPIO_OUTPUT);
     GPIOC_Set_Dir(23, GPIO_OUTPUT);
 
-    generic_timer_init(TIMER0, (void *)timer0_handle);
+    timer_init(TIMER0, (void *)timer0_handle);
 
-    timer_setup_by_us(250000, TIMER0);
+
 
     while (1)
     {

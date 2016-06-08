@@ -1,12 +1,17 @@
-VPATH = ../common ../lib/ ../canopen/user ../canopen/src ../canopen/bsp ../modules/can ../modules/gpio ../modules/timer ../modules/eth ../modules/uart ../lwip
+VPATH = ../common ../lib/ ../canopen/user ../canopen/src ../canopen/bsp ../modules/can ../modules/gpio ../modules/timer ../modules/eth ../modules/uart ../lwip ../modbus/src
 LDFLAGS = -G 0  -static -T ../common/ld.script
 
 TARGET = app
 OBJS =  start.S start.c task.c main.c timer_gsc3280.o can_gsc3280.o gpio_gsc3280.o eth_gsc3280.o uart_gsc3280.o libcanopenuser.o libcanopenbsp.o libcanfestival.o libc.a
+
 ifeq ($(LWIP),1)
 OBJS += lwip.o
 endif
-INCLUDES = -I./ -I../include -I../canopen/inc -I../canopen/user -I../include/modules -I../lwip/include -I../lwip/include/ipv4
+ifeq ($(MODBUS),1)
+OBJS += modbus.o
+endif
+
+INCLUDES = -I./ -I../include -I../canopen/inc -I../canopen/user -I../include/modules -I../lwip/include -I../lwip/include/ipv4 -I../modbus/port -I../modbus/src/include
 
 $(TARGET): $(OBJS)
 	@echo " "

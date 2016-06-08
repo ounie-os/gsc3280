@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sysctl.h>
 #include <cpu_regs.h>
+#include "interrupt.h"
 
 
 #define UART0 0xbc108000
@@ -20,16 +21,18 @@
 #define ref_clk 12000000
 
 #define UART_RX_BUFFER_LENGTH 1024
+#define UART_IER_RDAIE  (1 << 0)
+#define UART_IER_THREIE (1 << 1)
 
-typedef void (*uart_handler_t)(char *s);
+#define UART_IIR_RDA        (0xc4)
+#define UART_IIR_TIMEOUT    (0xcc)
+#define UART_IIR_THRE       (0xc2)
 
 
 void uart_init(unsigned int UART, unsigned int baud);
-void uart_request_irq(unsigned int uart_irq_index, uart_handler_t rx_hook_func);
-void uart_output_rxbuf(unsigned int uart_irq_index);
-void uart_puts(unsigned int UART,char *s);
 char uart_getc(unsigned int UART);
 void uart_putc(unsigned int UART,unsigned char c);
+void uart_enable_irq(unsigned int UART, unsigned int tx_enable, unsigned int rx_enable);
 
 
 #endif

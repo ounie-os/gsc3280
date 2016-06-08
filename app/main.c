@@ -10,56 +10,25 @@
 #include "lwip/tcp.h"
 #include "lwip/ip_addr.h"
 #include "netif/etharp.h"
+#include "mb.h"
 
-
-static int gpio_flag = 0;
-#if 0
-static u8 time_count = 0;
-
-static unsigned char FrameBuf[1500]=    
-{        
-    0x12,0x12,0x12,0x12,0x12,0x12,        
-    0x22,0x22,0x22,0x22,0x22,0x22,        
-    0x88,0xa4,0x0e,0x10    
-};
-
-void eth_send_test(void)
-{
-	int i;
-	
-	//gsc3280_eth_init();
-
-    for(i=0;i<10;i++)
-        gsc3280_mac_eth_tx(FrameBuf, 150);
-}
-#endif /* if 0 end*/
-	
-static void timer0_handle(void)
-{
-    if (gpio_flag)
-    {
-        gpio_flag = 0;
-        GPIOA_Set_Value(31, 0);
-    }
-    else
-    {
-        gpio_flag = 1;
-        GPIOA_Set_Value(31, 1);
-    }
-}
+#define MB_BAUDRATE         115200
+#define MB_SLAVE_ADDRESS    1
 
 int main_loop(void)
 {
-    init_irq();
+    init_irq();                                 /* 系统中断初始化。只需要调用一次 */
+    
+    can_init(MOD_WK, ACR, AMR, CAN_BAUDRATE);    /* 初始化can控制器 */
+    canOpen(NULL, &OD_0_0_Data);
+    __init_0();                                 /* 初始化canopen */
 
-    GPIO_Enable();
+    eMBInit(MB_RTU, MB_SLAVE_ADDRESS, 0, MB_BAUDRATE, MB_PAR_NONE);    /* 初始化modbus */
+    eMBEnable();
 
-    GPIOA_Set_Dir(31, GPIO_OUTPUT);
-    GPIOC_Set_Dir(23, GPIO_OUTPUT);
-
-    generic_timer_init(TIMER0, (void *)timer0_handle);
-
-    timer_setup_by_us(250000, TIMER0);
+    timer_init(TIMER1, (void *)eMBPoll);
+    timer_config(TIMER1, 500000);               /* 每500ms轮询一次embpoll */
+    timer_start(TIMER1);
 
     while (1)
     {

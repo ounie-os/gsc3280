@@ -65,7 +65,7 @@ typedef enum
 #define timer_debug(fmt, args...)
 #endif
 
-void generic_timer_init(TIMER_INDEX index, void *arg);
+void timer_init(TIMER_INDEX index, void *arg);
 u_int32_t timer_get_count(TIMER_INDEX index);
 void timer_irq_handler(void *arg);
 void timer_start(TIMER_INDEX index);
@@ -74,12 +74,9 @@ void timer_enable_irq(TIMER_INDEX index);
 void timer_disable_irq(TIMER_INDEX index);
 void timer_set_oneshot_mode(TIMER_INDEX index);
 void timer_set_cycle_mode(TIMER_INDEX index);
-void timer_set_reload_count(u_int32_t value, TIMER_INDEX index);
-void timer_set_reload_by_us(u_int32_t period_us, TIMER_INDEX index);
-void timer_setup_by_us(u_int32_t period_us, TIMER_INDEX index);
-
-
-
+void timer_set_reload_count(TIMER_INDEX index, u_int32_t value);
+void timer_set_reload_by_us(TIMER_INDEX index, u_int32_t period_us);
+void timer_config(TIMER_INDEX index, u_int32_t period_us);
 
 
 #endif

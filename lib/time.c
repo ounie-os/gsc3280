@@ -17,6 +17,7 @@ static unsigned long timestamp;
  * timer without interrupts
  */
 
+#if 0
 int timer_init(void)
 {
 	/* Set up the timer for the first expiration. */
@@ -25,6 +26,7 @@ int timer_init(void)
 
 	return 0;
 }
+#endif /* if 0 end*/
 
 void reset_timer(void)
 {

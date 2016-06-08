@@ -1,21 +1,16 @@
 OPT_CFLAGS = -O2
 CFLAGS = $(OPT_CFLAGS)
 PROG_CFLAGS =  -D_GNU_SOURCE -D_REENTRANT -nostdlib -fno-builtin
-TARGET = uart_gsc3280
+TARGET = mb_port
 
-ifeq ($(MODBUS),1)
-PROGDEFINES = -DMODBUS
-endif
+INCLUDES = -I./ -I../src/include -I../../include -I../../include/modules
 
-INCLUDES = -I./ -I../../include -I../../include/modules -I../../modbus/port
-
-OBJS = $(TARGET).o
+OBJS = portevent.o portserial.o porttimer.o
 
 all: $(TARGET).o
 
-$(TARGET).a: $(OBJS)
-	$(CROSS_COMPILE)ar rc $@ $(OBJS)
-	$(CROSS_COMPILE)ranlib $@
+$(TARGET).o: $(OBJS)
+	$(LD) -r $(OBJS) -o $@
 
 %.o: %.c
 	@echo " "
@@ -26,4 +21,4 @@ $(TARGET).a: $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS)
+	rm -f *.o

@@ -63,7 +63,7 @@ void timer_irq_handler(void *arg)
 }
 
 
-void generic_timer_init(TIMER_INDEX index, void *arg)
+void timer_init(TIMER_INDEX index, void *arg)
 {
     u32 freq;
     u32 OD1,OD0;
@@ -440,8 +440,7 @@ u_int32_t timer_get_count(TIMER_INDEX index)
     return 0;
 }
 
-
-void timer_set_reload_count(u_int32_t value, TIMER_INDEX index)
+void timer_set_reload_count(TIMER_INDEX index, u_int32_t value)
 {
     switch (index)
     {
@@ -476,18 +475,17 @@ void timer_set_reload_count(u_int32_t value, TIMER_INDEX index)
     }
 }
 
-void timer_set_reload_by_us(u_int32_t period_us, TIMER_INDEX index)
+void timer_set_reload_by_us(TIMER_INDEX index, u_int32_t period_us)
 {
     u_int32_t time_reg_count = ((timer_freq[index] / 1000) * (period_us << 1)) / 1000;
     timer_debug("time_reg_count = %lu\n", time_reg_count);
-    timer_set_reload_count(time_reg_count, index);
+    timer_set_reload_count(index, time_reg_count);
 }
 
-void timer_setup_by_us(u_int32_t period_us, TIMER_INDEX index)
+void timer_config(TIMER_INDEX index, u_int32_t period_us)
 {
     timer_set_cycle_mode(index);
     timer_enable_irq(index);
-    timer_set_reload_by_us(period_us, index);
-    timer_start(index);
+    timer_set_reload_by_us(index, period_us); 
 }
 
