@@ -2,7 +2,7 @@ VPATH = ../common ../lib/ ../canopen/user ../canopen/src ../canopen/bsp ../modul
 LDFLAGS = -G 0  -static -T ../common/ld.script
 
 TARGET = app
-OBJS =  start.S start.c task.c main.c timer_gsc3280.o can_gsc3280.o gpio_gsc3280.o eth_gsc3280.o uart_gsc3280.o libcanopenuser.o libcanopenbsp.o libcanfestival.o libc.a
+OBJS =  start.S start.c cache.S cache.c task.c main.c timer_gsc3280.o can_gsc3280.o gpio_gsc3280.o eth_gsc3280.o uart_gsc3280.o libcanopenuser.o libcanopenbsp.o libcanfestival.o libc.a
 
 ifeq ($(LWIP),1)
 OBJS += lwip.o

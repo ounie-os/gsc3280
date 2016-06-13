@@ -36,6 +36,18 @@ void eth_send_test(void)
 	
 static void timer0_handle(void)
 {
+    static u32 count = 0;
+
+    count++;
+
+    tcp_tmr();
+
+    if (count >= 20)
+    {
+        count = 0;
+        etharp_tmr();
+    }
+
     if (gpio_flag)
     {
         gpio_flag = 0;
@@ -46,6 +58,7 @@ static void timer0_handle(void)
         gpio_flag = 1;
         GPIOA_Set_Value(31, 1);
     }
+    GPIOC_Set_Value(23, 0);
 }
 
 int main_loop(void)
@@ -57,9 +70,12 @@ int main_loop(void)
     GPIOA_Set_Dir(31, GPIO_OUTPUT);
     GPIOC_Set_Dir(23, GPIO_OUTPUT);
 
+    lwip_stack_init();
+    gsc3280_eth_irq_init();
+
     timer_init(TIMER0, (void *)timer0_handle);
-
-
+    timer_config(TIMER0, 250000);
+    timer_start(TIMER0);
 
     while (1)
     {

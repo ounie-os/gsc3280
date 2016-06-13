@@ -335,9 +335,7 @@ int gsc3280_mac_eth_tx(unsigned char *data, int len)
 	}
 
 	/* Make sure data is in real memory */
-#if 0
 	flush_cache((ulong)data, len);
-#endif /* if 0 end*/
 	p->des2 = (void *)PHYSADDR(data);
 
 	/* Clean and set the TX descriptor */
@@ -636,10 +634,8 @@ static void init_dma_desc_rings(void)
 	int i;
 
 	/* Clean out uncached buffers */
-#if 0
 	flush_cache((unsigned long)&gsc3280_mac_dma, 
 						sizeof(struct gsc3280_mac_dma_t));
-#endif /* if 0 end*/
 
 	/* use uncache address */
 	dma_rx = 
