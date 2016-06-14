@@ -3,9 +3,9 @@ INCLUDES = -I./include -I../port -I./rtu -I./tcp -I../../include
 CFLAGS = -O2
 TARGET = modbus.o
 OBJS = mb.o
-SUBOBJS = ./rtu/mb_rtu.o ./functions/mb_func.o ../port/mb_port.o
+SUBOBJS = ./rtu/mb_rtu.o ./tcp/mbtcp.o ./functions/mb_func.o ../port/mb_port.o
 
-SUBDIR := rtu functions
+SUBDIR := rtu tcp functions
 
 all: subdir $(OBJS)
 	$(LD) -r $(SUBOBJS) $(OBJS) -o $(TARGET)

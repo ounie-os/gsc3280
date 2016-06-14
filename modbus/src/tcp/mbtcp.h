@@ -31,9 +31,11 @@
 #ifndef _MB_TCP_H
 #define _MB_TCP_H
 
+#if 0
 #ifdef __cplusplus
 PR_BEGIN_EXTERN_C
 #endif
+#endif /* if 0 end*/
 
 /* ----------------------- Defines ------------------------------------------*/
 #define MB_TCP_PSEUDO_ADDRESS   255
@@ -47,7 +49,9 @@ eMBErrorCode    eMBTCPReceive( UCHAR * pucRcvAddress, UCHAR ** pucFrame,
 eMBErrorCode    eMBTCPSend( UCHAR _unused, const UCHAR * pucFrame,
                             USHORT usLength );
 
+#if 0
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif
+#endif /* if 0 end*/
 #endif

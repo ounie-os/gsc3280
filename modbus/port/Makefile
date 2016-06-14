@@ -5,7 +5,7 @@ TARGET = mb_port
 
 INCLUDES = -I./ -I../src/include -I../../include -I../../include/modules
 
-OBJS = portevent.o portserial.o porttimer.o
+OBJS = portevent.o portserial.o porttimer.o porttcp.o
 
 all: $(TARGET).o
 
