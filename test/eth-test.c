@@ -58,7 +58,11 @@ static void timer0_handle(void)
         gpio_flag = 1;
         GPIOA_Set_Value(31, 1);
     }
-    GPIOC_Set_Value(23, 0);
+}
+
+static void timer1_handle(void)
+{
+    lwip_stack_input();
 }
 
 int main_loop(void)
@@ -68,13 +72,14 @@ int main_loop(void)
     GPIO_Enable();
 
     GPIOA_Set_Dir(31, GPIO_OUTPUT);
-    GPIOC_Set_Dir(23, GPIO_OUTPUT);
 
     lwip_stack_init();
-    gsc3280_eth_irq_init();
 
+    timer_init(TIMER1, (void *)timer1_handle);
+    timer_config(TIMER1, 1000);
     timer_init(TIMER0, (void *)timer0_handle);
     timer_config(TIMER0, 250000);
+    timer_start(TIMER1);
     timer_start(TIMER0);
 
     while (1)
