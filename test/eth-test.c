@@ -76,7 +76,7 @@ int main_loop(void)
     lwip_stack_init();
 
     timer_init(TIMER1, (void *)timer1_handle);
-    timer_config(TIMER1, 1000);
+    timer_config(TIMER1, 250);
     timer_init(TIMER0, (void *)timer0_handle);
     timer_config(TIMER0, 250000);
     timer_start(TIMER1);
