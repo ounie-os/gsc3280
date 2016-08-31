@@ -1,11 +1,10 @@
 OPT_CFLAGS = -O2
 CFLAGS = $(OPT_CFLAGS)
 PROG_CFLAGS =  -D_GNU_SOURCE -D_REENTRANT -nostdlib -fno-builtin
-PROGDEFINES = -DUSE_CAN0
-PROGDEFINES += -DEMI_CAN
-TARGET = can_gsc3280
+PROGDEFINES = -DDEBUG
+TARGET = dma_gsc3280
 
-INCLUDES = -I./ -I../../include -I../../include/modules -I../../canopen/inc -I../../canopen/user
+INCLUDES = -I./ -I../../include -I../../include/modules -I../../canopen/inc
 
 OBJS = $(TARGET).o
 

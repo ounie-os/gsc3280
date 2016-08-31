@@ -1,6 +1,8 @@
 #include <def.h>
 #include <sysctl.h>
 #include "emi_gsc3280.h"
+#include "dma_gsc3280.h"
+#include "can.h"
 
 typedef struct
 {
@@ -77,20 +79,72 @@ void emi_init(void)
 
     memset(&timing, 0, sizeof(EMI_SMTMGR));
 
-    timing.t_prc = 1;    /* 页模式读周期时间 */
+#ifdef EMI_DMA
+    timing.t_prc = 0;    /* 页模式读周期时间 */
+    timing.t_bta = 0;    /* 间隔宽度 */
+    timing.t_wp = 0;    /* 写操作宽度 */
+    timing.t_wr = 0;    /* 写地址/数据保持时间 */
+    timing.t_as = 0;    /* 写地址建立时间 */
+    timing.t_rc = 1;    /* 读周期时间 */
+#else
+    timing.t_prc = 0;    /* 页模式读周期时间 */
     timing.t_bta = 0;    /* 间隔宽度 */
     timing.t_wp = 10;    /* 写操作宽度 */
     timing.t_wr = 2;    /* 写地址/数据保持时间 */
     timing.t_as = 1;    /* 写地址建立时间 */
-    timing.t_rc = 0;    /* 读周期时间 */
+    timing.t_rc = 63;    /* 读周期时间 */
+#endif /* if 0 end*/
 
-    timing.page_mode = 1;    /* 开启页模式读操作 */
+    timing.page_mode = 0;    /* 开启页模式读操作 */
 
     value = T_PRC(timing.t_prc) | T_BTA(timing.t_bta) | T_WP(timing.t_wp) | T_WR(timing.t_wr) | T_AS(timing.t_as) | T_RC(timing.t_rc);
-    printf("EMI_SMTMGR = 0x%08x\n", value);
+    emi_debug("EMI_SMTMGR = 0x%08x\n", value);
     emi_enable();
     emi_iomux_init();
     emi_time_setup(EMI_BASE_ADDR + EMI_SMTMGR_SET1, value);
+    emi_debug("EMI_CSSLR1_LOW = 0x%08x\n", readl(EMI_BASE_ADDR + EMI_CSSLR1_LOW));
 }
 
+void emi_can_tx(Message const *m)
+{
+    int i;
+    u8 *frame = (u8 *)m;
+    u8 *data = (u8 *)&m->data[0];
+    emi_debug("emi_can_tx = \n");
+    emi_debug("len = %d, cod_id = 0x%04x\n", m->len, m->cob_id & 0x7ff);
+    emi_debug("data = ");
+    for (i=0;i<m->len;i++)
+    {
+        emi_debug("%02x,", data[i]);
+    }
+    emi_debug("\n");
+#ifdef EMI_DMA
+    while(dma_check_channel_busy(0));
+    memcpy((void *)EMI_GSC3280_TX_BASE, (void *)frame, 4 + m->len);
+    dma_3280_to_fpga(4 + m->len);
+#else
+    emi_write_array(FPGA_BASE_ADDR_1, 0, frame, 4 + m->len);
+#endif
+}
+
+void emi_can_rx(Message *m)
+{
+    int i;
+#ifdef EMI_DMA
+    while(dma_check_channel_busy(0));
+    dma_fpga_to_3280(sizeof(Message));
+    memcpy((void *)m, (void *)EMI_GSC3280_RX_BASE, sizeof(Message));
+#else
+    emi_read_array(FPGA_BASE_ADDR_1, 0, (u8 *)m, sizeof(Message));
+#endif
+    m->cob_id = m->cob_id & 0x7ff;
+    emi_debug("emi_can_rx = \n");
+    emi_debug("cod_id = 0x%04x, len = %d\n", m->cob_id, m->len);
+    emi_debug("data = ");
+    for (i=0; i<m->len; i++)
+    {
+        emi_debug("%02x,", m->data[i]);
+    }
+    emi_debug("\n");
+}
 

@@ -217,7 +217,7 @@ void can_init(int mode, int acc, int filter, int brg)
  */
 static int bare_start_tx(struct can_frame *cf)
 {
-	unsigned char dlc;
+	unsigned int dlc;
 	unsigned int id;
 	
 	dlc = cf->can_ff;
@@ -275,6 +275,10 @@ static unsigned int bare_can_rx(Message* m)
 
 int can_tx (Message const *m)
 {
+#ifdef EMI_CAN
+   emi_can_tx(m);
+#else
+
 	struct can_frame cf;
 	unsigned int timeout = 0xffff;
 	
@@ -300,6 +304,7 @@ int can_tx (Message const *m)
             m->data[4],m->data[5],m->data[6],m->data[7]);	
 
 	bare_start_tx(&cf);
+#endif
 
 	return 0;
 }
@@ -314,8 +319,18 @@ unsigned int can_rx(Message *m)
 	}while(1);
 #endif /* if 0 end*/
 
+#ifdef EMI_CAN
+    emi_can_rx(m);
+#else
     bare_can_rx(m);
-    
+#endif    
 	return 0;
+}
+
+void can_irq_process(void)
+{
+    Message frame;
+    can_rx(&frame);
+    canDispatch(&OD_0_0_Data, &frame);
 }
 

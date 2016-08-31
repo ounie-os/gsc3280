@@ -7,8 +7,8 @@ LD = $(CROSS_COMPILE)ld
 AFLAGS = -G 0  -Os -Wall -Wstrict-prototypes -fpic -fno-builtin -mabicalls -pipe -mips2 -nostdlib -nostdinc -msoft-float -mlong-calls -EL
 CPU_FREQ_MHZ = 250
 
-LWIP = 1
-MODBUS = 1
+LWIP = 0
+MODBUS = 0
 
 export CC LD OBJCOPY OBJDUMP AFLAGS CPU_FREQ_MHZ LWIP MODBUS
 

@@ -92,7 +92,7 @@
  * @data:    the CAN frame payload.
  */
 struct can_frame {
-	unsigned char can_ff;  /* EFF/RTR flags,data length*/
+	unsigned int  can_ff;  /* EFF/RTR flags,data length*/
 	unsigned int  can_id;  /* 32 bit CAN_ID */
 	unsigned int  data[2];
 };
@@ -102,6 +102,8 @@ unsigned int can_rx(Message *m);
 //int can_tx(int ff ,int id, unsigned int  *data,unsigned int len);
 int can_tx (Message const *m);
 int can_irq_init(unsigned int enable_bits);
+void can_irq_process(void);
+
 
 #ifdef DEBUG
 #define can_debug(fmt, args...) printf(fmt, ##args);

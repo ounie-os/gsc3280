@@ -30,6 +30,22 @@
 #define GPIO_INPUT  0
 #define GPIO_OUTPUT 1
 
+#define GPIO_EMI_IRQ_RX (24)
+#define GPIO_EMI_IRQ_TX (25)
+
+typedef enum
+{
+    LEVEL_TRIGGER = 0,
+    EDGE_TRIGGER  = 1,
+}GPIO_INT_LEVEL_TYPE;
+
+typedef enum
+{
+    LOW_FALLING_DETECT = 0,
+    HIGH_RISING_DETECT = 1,
+}GPIO_INT_POLARITY_TYPE;
+
+
 extern void GPIO_Enable(void);
 extern void GPIO_Disable(void);
 
@@ -47,5 +63,14 @@ extern unsigned int GPIOC_Get_Value(unsigned int GPIO);
 
 extern void GPIO_Irq_Init(unsigned int GPIO);
 extern void GPIO_Irq_Clear(unsigned int GPIO);
+
+int GPIOA_Irq_init(unsigned int GPIO, GPIO_INT_LEVEL_TYPE level, GPIO_INT_POLARITY_TYPE polarity);
+
+#ifdef DEBUG
+#define gpio_debug(fmt, args...) printf(fmt, ##args)
+#else
+#define gpio_debug(fmt, args...)
+#endif
+
 
 #endif
