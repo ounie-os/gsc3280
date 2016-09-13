@@ -97,15 +97,16 @@ struct can_frame {
 	unsigned int  data[2];
 };
 
+void can_emi_init(void);
 void can_init(int mode, int acc, int filter, int brg);
 unsigned int can_rx(Message *m);
-//int can_tx(int ff ,int id, unsigned int  *data,unsigned int len);
 int can_tx (Message const *m);
 int can_irq_init(unsigned int enable_bits);
-void can_irq_process(void);
+void can_rx_irq_process(void);
+void can_loop_process(void);
 
 
-#ifdef DEBUG
+#ifdef CAN_DEBUG
 #define can_debug(fmt, args...) printf(fmt, ##args);
 #else
 #define can_debug(fmt, args...)

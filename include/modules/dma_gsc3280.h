@@ -77,7 +77,7 @@ int dma_3280_to_fpga(int size);
 int dma_fpga_to_3280(int size);
 
 
-#ifdef DEBUG
+#ifdef DMA_DEBUG
 #define dma_debug(fmt, args...) printf(fmt, ##args)
 #else
 #define dma_debug(fmt, args...)

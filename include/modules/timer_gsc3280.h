@@ -59,7 +59,7 @@ typedef enum
     TIMER3
 }TIMER_INDEX;
 
-#ifdef DEBUG
+#ifdef TIMER_DEBUG
 #define timer_debug(fmt, args...) printf(fmt, ##args);
 #else
 #define timer_debug(fmt, args...)

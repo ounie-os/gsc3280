@@ -181,7 +181,6 @@ int dma_check_channel_busy(int channel)
 
 int dma_3280_to_fpga(int size)
 {
-    dma_init();
     dma_prepare_single(0, (unsigned char *)EMI_GSC3280_TX_PHYSICAL_BASE, 
                         (unsigned char *)EMI_FPGA_TX_PHYSICAL_BASE, size, MTP);
     return 0;
@@ -189,7 +188,6 @@ int dma_3280_to_fpga(int size)
 
 int dma_fpga_to_3280(int size)
 {
-    dma_init();
     dma_prepare_single(0, (unsigned char *)EMI_FPGA_RX_PHYSICAL_BASE, 
                         (unsigned char *)EMI_GSC3280_RX_PHYSICAL_BASE, size, PTM);
     return 0;    

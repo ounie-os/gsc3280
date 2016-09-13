@@ -41,7 +41,7 @@ void emi_can_tx(Message const *m);
 void emi_can_rx(Message *m);
 
 
-#ifdef DEBUG
+#ifdef EMI_DEBUG
 #define emi_debug(fmt, args...) printf(fmt, ##args)
 #else
 #define emi_debug(fmt, args...)

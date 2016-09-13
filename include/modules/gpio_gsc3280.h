@@ -1,6 +1,8 @@
 #ifndef __GPIO_H__
 #define __GPIO_H__
 
+#include "def.h"
+
 #define GPIO_BASE 0xBC110000
 
 #define GPIO_SWPORTA_DR 0x0 + GPIO_BASE
@@ -26,12 +28,13 @@
 #define GPIO_INTEN 0x30 + GPIO_BASE
 #define GPIO_INTSTATUS 0x40 + GPIO_BASE
 #define GPIO_DEBOUNCE 0x48 + GPIO_BASE
+#define GPIO_RAW_INTSTATUS 0x44 + GPIO_BASE
 
 #define GPIO_INPUT  0
 #define GPIO_OUTPUT 1
 
 #define GPIO_EMI_IRQ_RX (24)
-#define GPIO_EMI_IRQ_TX (25)
+#define GPIO_EMI_IRQ_SYNC (25)
 
 typedef enum
 {
@@ -64,9 +67,21 @@ extern unsigned int GPIOC_Get_Value(unsigned int GPIO);
 extern void GPIO_Irq_Init(unsigned int GPIO);
 extern void GPIO_Irq_Clear(unsigned int GPIO);
 
-int GPIOA_Irq_init(unsigned int GPIO, GPIO_INT_LEVEL_TYPE level, GPIO_INT_POLARITY_TYPE polarity);
+void gpio_init(void);
 
-#ifdef DEBUG
+#define gpio_disable_int() \
+{ \
+    writel(0xffffffff, GPIO_INTMASK); \
+} \
+
+#define gpio_enable_int() \
+{ \
+    writel(0x0, GPIO_INTMASK); \
+} \
+
+
+
+#ifdef GPIO_DEBUG
 #define gpio_debug(fmt, args...) printf(fmt, ##args)
 #else
 #define gpio_debug(fmt, args...)

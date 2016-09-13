@@ -1,7 +1,6 @@
 OPT_CFLAGS = -O2
 CFLAGS = $(OPT_CFLAGS)
 PROG_CFLAGS =  -D_GNU_SOURCE -D_REENTRANT -nostdlib -fno-builtin
-PROGDEFINES = -DDEBUG
 TARGET = dma_gsc3280
 
 INCLUDES = -I./ -I../../include -I../../include/modules -I../../canopen/inc

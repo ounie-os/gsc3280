@@ -2,6 +2,7 @@
 #define __DEF_H
 
 #include <types.h>
+#include <sys_config.h>
 //#define u32 unsigned int
 //#define u16 unsigned short
 

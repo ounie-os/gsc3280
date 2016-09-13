@@ -2,8 +2,16 @@
 #include <stdio.h>
 #include <sysctl.h>
 #include "can_gsc3280.h"
+#include "gpio_gsc3280.h"
+#include "timer_gsc3280.h"
 #include <interrupt.h>
 #include <OD_0_0.h>
+
+#define CAN_RX_FRAME_BUF 10
+
+static volatile Message can_rx_message[CAN_RX_FRAME_BUF];
+static volatile u32 can_rx_cur = 0;
+static volatile u8 sync_flag = 0;
 
 static volatile unsigned int g_in_sending = 0;
 
@@ -37,14 +45,12 @@ static inline void can_write_reg(unsigned int reg, unsigned int val)
 void can_irq_handler(void * arg)
 {
     u32 ir;
-    Message frame;
 
     ir = can_read_reg(REG_IR);
 
     if (ir & IRQ_RI)
     {
-        can_rx(&frame);
-        canDispatch(&OD_0_0_Data, &frame);
+        can_rx_irq_process();
     }
     if (ir & IRQ_TI)
     {
@@ -189,6 +195,34 @@ static void bare_can_setfilter(int acc, int filter)
 	can_write_reg( REG_AMR, filter);
 }
 
+#ifdef CAN_SELF_SYNC
+static void timer2_handle(void)
+{
+    Message m;
+    m.cob_id = 0x080;
+    m.rtr = 0;
+    m.len = 0;
+    can_tx(&m);
+    sync_flag = 1;
+}
+#endif
+
+
+#ifdef EMI_CAN
+
+void can_emi_init(void)
+{
+    memset(&can_rx_message, 0, sizeof(Message) * CAN_RX_FRAME_BUF);
+
+#ifdef CAN_SELF_SYNC
+    timer_init(TIMER2, (void *)timer2_handle);
+    timer_config(TIMER2, 4000);
+    timer_start(TIMER2);
+#endif
+}
+
+#else
+
 void can_init(int mode, int acc, int filter, int brg)
 {
 	int ret;
@@ -209,8 +243,16 @@ void can_init(int mode, int acc, int filter, int brg)
 	bare_can_start(mode);
 
 	can_irq_init(IRQ_ALL);
+
+#ifdef CAN_SELF_SYNC
+    timer_init(TIMER2, (void *)timer2_handle);
+    timer_config(TIMER2, 4000);
+    timer_start(TIMER2);
+#endif
+
 }
 
+#endif
 
 /*
  * transmit a CAN message
@@ -311,13 +353,6 @@ int can_tx (Message const *m)
 
 unsigned int can_rx(Message *m)
 {
-#if 0
-	do{
-		if(can_read_reg(REG_SR)&0x1){
-			return bare_can_rx(m);
-		}
-	}while(1);
-#endif /* if 0 end*/
 
 #ifdef EMI_CAN
     emi_can_rx(m);
@@ -327,10 +362,51 @@ unsigned int can_rx(Message *m)
 	return 0;
 }
 
-void can_irq_process(void)
+void can_rx_irq_process(void)
 {
-    Message frame;
-    can_rx(&frame);
-    canDispatch(&OD_0_0_Data, &frame);
+    if (can_rx_cur >= CAN_RX_FRAME_BUF)
+    {
+        printf("can rx buf is full...\n");
+        return ;
+    }
+    can_debug("can_rx_cur = %d\n", can_rx_cur);
+    can_rx(&can_rx_message[can_rx_cur]);
+    can_rx_cur++;
+}
+
+
+/* 处理中断中收到的can报文。*/
+void can_loop_process(void)
+{
+    u8 i;
+
+    if (sync_flag)
+    {
+        sync_flag = 0;
+        //plc_run();
+    }
+
+    for (i=0;i<can_rx_cur;i++)
+    {   
+        canDispatch(&OD_0_0_Data, &can_rx_message[i]);   
+    }
+
+    if (can_rx_cur)
+    {     
+#ifdef EMI_CAN
+        gpio_disable_int();
+        can_rx_cur = 0;
+        gpio_enable_int();
+#else
+        can_write_reg(REG_IER, IRQ_OFF);
+        can_rx_cur = 0;
+        can_write_reg(REG_IER, IRQ_ALL);
+#endif
+    }
+}
+
+void can_sync_irq_process(void)
+{
+    sync_flag = 1;
 }
 

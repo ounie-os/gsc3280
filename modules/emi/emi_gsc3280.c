@@ -89,9 +89,9 @@ void emi_init(void)
 #else
     timing.t_prc = 0;    /* 页模式读周期时间 */
     timing.t_bta = 0;    /* 间隔宽度 */
-    timing.t_wp = 10;    /* 写操作宽度 */
-    timing.t_wr = 2;    /* 写地址/数据保持时间 */
-    timing.t_as = 1;    /* 写地址建立时间 */
+    timing.t_wp = 8;    /* 写操作宽度 */
+    timing.t_wr = 3;    /* 写地址/数据保持时间 */
+    timing.t_as = 3;    /* 写地址建立时间 */
     timing.t_rc = 63;    /* 读周期时间 */
 #endif /* if 0 end*/
 
@@ -120,10 +120,10 @@ void emi_can_tx(Message const *m)
     emi_debug("\n");
 #ifdef EMI_DMA
     while(dma_check_channel_busy(0));
-    memcpy((void *)EMI_GSC3280_TX_BASE, (void *)frame, 4 + m->len);
-    dma_3280_to_fpga(4 + m->len);
+    memcpy((void *)EMI_GSC3280_TX_BASE, (void *)frame, sizeof(Message));
+    dma_3280_to_fpga(sizeof(Message));
 #else
-    emi_write_array(FPGA_BASE_ADDR_1, 0, frame, 4 + m->len);
+    emi_write_array(FPGA_BASE_ADDR_1, 0, frame, sizeof(Message));
 #endif
 }
 
@@ -137,6 +137,8 @@ void emi_can_rx(Message *m)
 #else
     emi_read_array(FPGA_BASE_ADDR_1, 0, (u8 *)m, sizeof(Message));
 #endif
+
+    emi_debug("cob_id_original = 0x%04x\n", m->cob_id);
     m->cob_id = m->cob_id & 0x7ff;
     emi_debug("emi_can_rx = \n");
     emi_debug("cod_id = 0x%04x, len = %d\n", m->cob_id, m->len);

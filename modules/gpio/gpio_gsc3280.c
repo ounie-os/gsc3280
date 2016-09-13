@@ -105,44 +105,57 @@ static void GPIO_irq_en(unsigned int GPIO, unsigned int status)
 {
     if (0 == status)
     {
-        writel((~(1<<GPIO)) & readl(GPIO_INTEN), GPIO_INTEN);
+        writel((1<<GPIO) | readl(GPIO_INTMASK), GPIO_INTMASK);
     }
     else
     {
-        writel((1<<GPIO) | readl(GPIO_INTEN), GPIO_INTEN);
+        writel((~(1<<GPIO)) & readl(GPIO_INTMASK), GPIO_INTMASK);
     }
 
-    gpio_debug("GPIO_INTEN = 0x%08x\n", readl(GPIO_INTEN));
+    gpio_debug("GPIO_INTMASK = 0x%08x\n", readl(GPIO_INTMASK));
 }
 
 void handler_gpio(void *arg)
 {
-    unsigned int gpio_irq_status = 0;
+    volatile unsigned int gpio_irq_status = 0;
+    volatile unsigned int gpio_raw_status = 0;
+    
     GPIO_irq_en(GPIO_EMI_IRQ_RX, 0);    /* 关闭gpio的中断 */    /* 收包 */
-    //GPIO_irq_en(GPIO_EMI_IRQ_TX, 0);    /* 关闭gpio的中断 */    /* 发包 */
+#ifndef CAN_SELF_SYNC
+    GPIO_irq_en(GPIO_EMI_IRQ_SYNC, 0);    /* 关闭gpio的中断 */
+#endif
 
     gpio_irq_status = readl(GPIO_INTSTATUS);
+    gpio_raw_status = readl(GPIO_RAW_INTSTATUS);
 
-#if 0
-    if (gpio_irq_status & (1 << gpio[0]))
+    gpio_debug("gpio_irq_status = 0x%08x\n", gpio_irq_status);
+    gpio_debug("gpio_raw_status = 0x%08x\n", gpio_raw_status);
+
+    if (gpio_raw_status & (1 << GPIO_EMI_IRQ_RX))
     {
-        
+        can_rx_irq_process();
     }
-#endif /* if 0 end*/
 
-    writel(1 << GPIO_EMI_IRQ_RX, GPIO_PORTA_EOI);    /* 清除中断标志 */
-
-    can_irq_process();
+#ifndef CAN_SELF_SYNC
+    if (gpio_raw_status & (1 << GPIO_EMI_IRQ_SYNC))
+    {
+        can_sync_irq_process();
+    }
+#endif
 
     GPIO_irq_en(GPIO_EMI_IRQ_RX, 1);
-    //GPIO_irq_en(GPIO_EMI_IRQ_TX, 1);
+    
+#ifndef CAN_SELF_SYNC
+    GPIO_irq_en(GPIO_EMI_IRQ_SYNC, 1);
+#endif
+
+    writel(0xffffffff, GPIO_PORTA_EOI);    /* 清除中断标志 */
+
 }
 
-int GPIOA_Irq_init(unsigned int GPIO, GPIO_INT_LEVEL_TYPE level, GPIO_INT_POLARITY_TYPE polarity)
+static int GPIOA_Irq_init(unsigned int GPIO, GPIO_INT_LEVEL_TYPE level, GPIO_INT_POLARITY_TYPE polarity)
 {
-    int ret = 0;
-
-    GPIO_Enable();
+    gpio_debug("gpio = %d\n", GPIO);
 
     writel((~(1<<GPIO)) & readl(GPIO_SWPORTA_DDR), GPIO_SWPORTA_DDR);    /* 设置为输入 */
 
@@ -170,10 +183,17 @@ int GPIOA_Irq_init(unsigned int GPIO, GPIO_INT_LEVEL_TYPE level, GPIO_INT_POLARI
 
     gpio_debug("GPIO_INT_POLARITY = 0x%08x\n", readl(GPIO_INT_POLARITY));
 
-    writel((~(1<<GPIO)) & readl(GPIO_INTMASK), GPIO_INTMASK);    /* 不屏蔽中断 */
+    writel((1<<GPIO) | readl(GPIO_INTEN), GPIO_INTEN);
 
-    gpio_debug("GPIO_INTMASK = 0x%08x\n", readl(GPIO_INTMASK));
-    
+    GPIO_irq_en(GPIO, 1);
+
+    return 0;
+}
+
+void gpio_init(void)
+{
+    int ret = 0;
+
     ret = request_irq(28, handler_gpio, (void *)0);
     if (0 != ret) 
     {
@@ -181,7 +201,10 @@ int GPIOA_Irq_init(unsigned int GPIO, GPIO_INT_LEVEL_TYPE level, GPIO_INT_POLARI
         return -1;
     }
 
-    GPIO_irq_en(GPIO, 1);
+    GPIO_Enable();
 
-    return 0;
+    GPIOA_Irq_init(GPIO_EMI_IRQ_RX, EDGE_TRIGGER, LOW_FALLING_DETECT);
+#ifndef CAN_SELF_SYNC
+    GPIOA_Irq_init(GPIO_EMI_IRQ_SYNC, EDGE_TRIGGER, LOW_FALLING_DETECT);
+#endif
 }
